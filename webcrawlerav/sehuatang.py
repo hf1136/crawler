@@ -106,6 +106,16 @@ def parser_homeurl(html):
 def _decode_utf8(aStr):
     return aStr.encode('utf-8','ignore').decode('utf-8')
 
+
+def write_data_csv(dict_jav, uncensored):
+    with open('./database/sht.csv', 'w', newline='')as f:
+        fieldnames = {'avid', 'URL', 'title','发行日期','长度','导演','制作商','发行商','系列','演员','类别','coverimage',
+                      'magnet','torrentname','torrenthash',}  # 表头
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerow(dict_jav)
+        f.close()
+
 def write_data(dict_jav, uncensored):
     '''write_data(dict_jav, uncensored)'''
     conn = sqlite3.connect(sqlpath+dbname)
@@ -144,6 +154,9 @@ def join_db(homeurl,url,topitem):
             print("Crawled %s" % detail_url[0])
         else:
             print('This %s date already in table' % dict_jav_data['avid'])
+
+def check_url_not_in_csv(avid):
+    return True
 
 def check_url_not_in_table(avid):
     """check_url_in_db(url),if the url isn't in the table it will return True, otherwise return False"""
