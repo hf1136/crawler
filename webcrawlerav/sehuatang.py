@@ -94,6 +94,8 @@ def get_dict(homeurl,url,topitem):
         try:
             link = f'{homeurl}{item[0]}'
             detail_page_html = downloader.get_html(link)
+
+            print(len(detail_page_html))
             dict_jav = parser_content(item[1],detail_page_html,link)
         except:
             #with open('fail_url.txt', 'a') as fd:
@@ -112,10 +114,6 @@ def parser_homeurl(html):
             yield item['href'],avid
         else :
             continue
-
-def _decode_utf8(aStr):
-    return aStr.encode('utf-8','ignore').decode('utf-8')
-
 
 
 
