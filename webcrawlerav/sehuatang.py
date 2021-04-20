@@ -4,11 +4,21 @@ from bs4 import BeautifulSoup
 import time
 
 import downloader
+import csv
+import codecs
 
 sqlpath=r'./database/'
 dbname = r'sht.sqlite3.db'
 ##########################################
 
+def create_csv():
+    with codecs.open('./database/sht.csv', 'w','utf-8') as f:
+        fieldnames = {'avid', 'URL', 'title','发行日期','长度','导演','制作商','发行商','系列','演员','类别','coverimage',
+                      'magnet','torrentname','torrenthash',}  # 表头
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        f.close()
+    print("csv created successfully")
 
 def create_db():
     '''create a db and table if not exists'''
@@ -107,14 +117,7 @@ def _decode_utf8(aStr):
     return aStr.encode('utf-8','ignore').decode('utf-8')
 
 
-def write_data_csv(dict_jav, uncensored):
-    with open('./database/sht.csv', 'w', newline='')as f:
-        fieldnames = {'avid', 'URL', 'title','发行日期','长度','导演','制作商','发行商','系列','演员','类别','coverimage',
-                      'magnet','torrentname','torrenthash',}  # 表头
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerow(dict_jav)
-        f.close()
+
 
 def write_data(dict_jav, uncensored):
     '''write_data(dict_jav, uncensored)'''
@@ -148,15 +151,38 @@ def write_data(dict_jav, uncensored):
 
 def join_db(homeurl,url,topitem):
     for dict_jav_data, detail_url in get_dict(homeurl,url,topitem):
-        if check_url_not_in_table(detail_url[1][0]):
+        #if check_url_not_in_table(detail_url[1][0]):
+        if check_url_not_in_csv(detail_url[1][0]):
             print(dict_jav_data)
-            write_data(dict_jav_data, 1)
+            #write_data(dict_jav_data, 1)
+            write_data_csv(dict_jav_data, 1)
             print("Crawled %s" % detail_url[0])
         else:
             print('This %s date already in table' % dict_jav_data['avid'])
 
+def write_data_csv(dict_jav, uncensored):
+    with codecs.open('./database/sht.csv', 'a','utf-8') as f:
+        fieldnames = {'avid', 'URL', 'title','发行日期','长度','导演','制作商','发行商','系列','演员','类别','coverimage',
+                      'magnet','torrentname','torrenthash',}  # 表头
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        #writer.writeheader()
+        #print(dict_jav)
+        writer.writerow(dict_jav)
+        f.close()
+
+
 def check_url_not_in_csv(avid):
+
     return True
+    f = codecs.open('./database/sht.csv', 'r', 'utf-8')
+    reader = csv.DictReader(f)
+    f.close()
+    for row in reader:
+        if row['avid'] == avid:
+            return False
+    return True
+
+
 
 def check_url_not_in_table(avid):
     """check_url_in_db(url),if the url isn't in the table it will return True, otherwise return False"""
@@ -175,7 +201,8 @@ def check_url_not_in_table(avid):
 # Press the green button in the gutter to run the script.
 
 if __name__ == '__main__':
-    create_db()
+    #create_db()
+    create_csv()
 
     #url = r'https://www.sehuatang.net/forum-37-1.html'
     homeurll = r'https://www.sehuatang.net/'

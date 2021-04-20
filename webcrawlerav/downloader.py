@@ -18,6 +18,7 @@ def get_html(url, Referer_url=None):
         headers['Referer'] = Referer_url
     req = requests.get(url, headers=headers,proxies=proxies,verify=False)
     print ("get data from %s" % url)
+    req.close()
     return req.content
 
 def get_html_noprox(url, Referer_url=None):
