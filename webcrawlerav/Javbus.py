@@ -3,6 +3,7 @@
 import downloader
 import pageparser
 import controler
+import time
 
 
 def get_dict(url):
@@ -22,12 +23,31 @@ def get_dict(url):
 def join_db(url,is_uncensored):
     """the detail_dict of the url join the db"""
     for dict_jav_data, detail_url in get_dict(url):
+        time.sleep(3)
         if controler.check_url_not_in_csv(dict_jav_data['URL']):
-            controler.write_data_csv(dict_jav_data, is_uncensored)
             print(dict_jav_data)
+            controler.write_data_csv(dict_jav_data, is_uncensored)
             print("Crawled %s" % detail_url)
         else:
             print('This %s date already in table' % dict_jav_data['avid'])
+
+def test_parser():
+    # detail_url = 'https://www.javbus.com/AGAV-054'
+    # detail_page_html = downloader.get_html_txt(detail_url)
+    #
+    # print(type(detail_page_html))
+    # with open('tt.html', 'w', encoding='utf-8') as f:
+    #     f.write(detail_page_html)
+    # f.close()
+
+    f = open("./tt.html", "r",encoding='utf-8')
+    str = f.read()
+    detail_page_html = str
+    f.close()
+
+    dict_jav = pageparser.parser_content(detail_page_html)
+
+
 
 def main(entrance):
 
@@ -37,6 +57,7 @@ def main(entrance):
     #只爬首页
     join_db(entrance, is_uncensored)
     #爬后面的10页
+    #test_parser()
 '''
     num = 0
     entrance_html = downloader.get_html(entrance)

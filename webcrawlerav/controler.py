@@ -13,7 +13,7 @@ def _decode_utf8(aStr):
 
 def create_csv():
     with codecs.open('./database/javbus.csv', 'w','utf-8') as f:
-        fieldnames = {'avid', 'URL', 'title','发行日期','长度','导演','制作商','发行商','系列','演员','类别','coverimage',
+        fieldnames = {'avid', 'URL', 'title','發行日期','長度','導演','製作商','發行商','系列','演員','類別','coverimage',
                       'magnet','torrentname','torrenthash',}  # 表头
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
@@ -52,15 +52,14 @@ def create_db():
     conn.close()
 
 def write_data_csv(dict_jav, uncensored):
-    def write_data_csv(dict_jav, uncensored):
-        with codecs.open('./database/javbus.csv', 'a', 'utf-8') as f:
-            fieldnames = {'avid', 'URL', 'title', '发行日期', '长度', '导演', '制作商', '发行商', '系列', '演员', '类别', 'coverimage',
-                          'magnet', 'torrentname', 'torrenthash', }  # 表头
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            # writer.writeheader()
-            # print(dict_jav)
-            writer.writerow(dict_jav)
-            f.close()
+
+    with codecs.open('./database/javbus.csv', 'a', 'utf-8') as f:
+        fieldnames = {'avid', 'URL', 'title', '發行日期', '長度', '導演', '製作商', '發行商', '系列', '演員', '類別', 'coverimage',
+                      'magnet', 'torrentname', 'torrenthash', }  # 表头
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+
+        writer.writerow(dict_jav)
+        f.close()
 
 def write_data(dict_jav, uncensored):
     '''write_data(dict_jav, uncensored)'''

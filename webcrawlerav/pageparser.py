@@ -2,15 +2,26 @@
 
 from bs4 import BeautifulSoup
 import downloader
+import re
+import math
+import random
 
 
-def _get_cili_url(soup):
+def _get_cili_url(htmltext):
     """get_cili(soup).get the ajax url and Referer url of request"""
 
-    ajax_get_cili_url = 'https://www.javbus.com/ajax/uncledatoolsbyajax.php?lang=zh'
-    ajax_data = soup.select('script')[8].text
-    for l in ajax_data.split(';')[:-1]:
-        ajax_get_cili_url += '&%s' % l[7:].replace("'", "").replace(' ', '')
+    pattern7 = re.compile("var gid = (\d+)", re.S)
+    matcher7 = pattern7.search(htmltext)
+    pattern8 = re.compile("img = '(.*?)'", re.S)
+    matcher8 = pattern8.search(htmltext)
+
+    ajax_get_cili_url = ''
+    if matcher7:
+        gid = matcher7.group(1)
+        img = matcher8.group(1)
+        ajax_get_cili_url = "https://www.javbus.com/ajax/uncledatoolsbyajax.php?gid={}&lang=zh&img={}&uc=0&floor={}".format(gid,
+                                                                                                                   img,
+                                                                                                                   math.floor(random.random()*1000+1))
     return ajax_get_cili_url
 
 
@@ -62,10 +73,11 @@ def parser_homeurl(html):
             yield url['href']
 
 
-def parser_content(html):
+def parser_content(htmltext):
     """parser_content(html),parser page's content of every url and yield the dict of content"""
 
-    soup = BeautifulSoup(html, "html.parser")
+    soup = BeautifulSoup(htmltext, "html.parser")
+    pagetext = htmltext.decode('utf-8')
 
     categories = {}
 
@@ -107,12 +119,13 @@ def parser_content(html):
     categories['系列'] = series
     # series = soup.find('span', text="系列:").parent.contents[2].text if soup.find('span', text="系列:") else ''
 
-    genre_doc = soup.find('p', text="類別:")
-    genre = (i.text.strip() for i in genre_doc.find_next('p').select('span')) if genre_doc else ''
-    # genre =(i.text.strip() for i in soup.find('p', text="類別:").find_next('p').select('span')) if soup.find('p', text="類別:") else ''
+    genre_doc = soup.find_all('span', class_="genre")
     genre_text = ''
-    for tex in genre:
-        genre_text += '%s   ' % tex
+    for i in genre_doc:
+        fl = i.find('a')
+        if fl :
+            genre_text += '%s   ' % fl.text
+
     categories['類別'] = genre_text
 
     actor_doc = soup.select('span[onmouseover^="hoverdiv"]')
@@ -123,12 +136,14 @@ def parser_content(html):
         actor_text += '%s   ' % tex
     categories['演員'] = actor_text
 
+    #构建Ajax的链接地址
     # 网址加入字典
     url = soup.select('link[hreflang="zh"]')[0]['href']
     categories['URL'] = url
 
     # 将磁力链接加入字典
-    magnet_html = downloader.get_html(_get_cili_url(soup), Referer_url=url)
+    cili = _get_cili_url(pagetext)
+    magnet_html = downloader.get_html(cili, Referer_url=url)
     magnet = _parser_magnet(magnet_html)
     categories['magnet'] = magnet
 
@@ -139,26 +154,3 @@ def parser_content(html):
     categories['torrenthash'] = ''
 
     return categories
-
-#馒头部分的页面逻辑
-def getMteamCookies( ):
-    f=open(r'/home/pii/co.txt','r')
-    #f=open(r'./co.txt','r')
-    cookies={}#初始化cookies字典变量
-    for line in f.read().split(';'):   #按照字符：进行划分读取
-        #其设置为1就会把字符串拆分成2份
-        name,value=line.strip().split('=',1)
-        cookies[name] = value
-    return cookies
-
-def IsUpload_Mteam( str ):
-   #return False
-   url = "https://pt.m-team.cc/adult.php?&search=%s&search_area=0" % str
-   cookies = getMteamCookies()
-   info = downloader.get_html_cookie(url,cookies=cookies)
-   soup = BeautifulSoup(info, 'lxml')
-   h2title = soup.find_all("h2")
-   if len(h2title) > 0 :
-       print("在MTeam中没有找到对应的种子，可以上传！")
-       return False
-   return True
