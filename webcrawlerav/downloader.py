@@ -11,15 +11,28 @@ proxies = {'http': 'socks5://127.0.0.1:7890',
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36',
 }
+def save_html(html,filename):
+     with open(f'./html/test.html','w','utf-8') as f:
+         f.write(html)
+         f.close()
+     print("html file saved successfully")
 
 def get_html(url, Referer_url=None):
     '''get_html(url),download and return html'''
+    req = ''
     if Referer_url:
         headers['Referer'] = Referer_url
-    req = requests.get(url, headers=headers,proxies=proxies,verify=False)
-    print ("get data from %s" % url)
-    req.close()
-    return req.content
+    try:
+        req = requests.get(url, headers=headers,proxies=proxies,verify=False)
+        print("get data from %s" % url)
+        save_html(req.content, url)
+        req.close()
+        return req.content
+    except:
+        print("Sorry requests can not connect host")
+        return None
+
+
 
 def get_html_txt(url, Referer_url=None):
     '''get_html(url),download and return html'''

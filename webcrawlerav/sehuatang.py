@@ -1,6 +1,7 @@
 #-*-coding:utf-8-*-
 import sqlite3
 from bs4 import BeautifulSoup
+from lxml import etree
 import time
 
 import downloader
@@ -54,6 +55,48 @@ def create_db():
 def crawlpage(url = ''):
     join_db(url)
 
+
+def parser_content_xpath(avid, html, link):
+    #html = etree.parse('./html/test.html', etree.HTMLParser())
+    html = etree.parse(html, etree.HTMLParser())
+
+    #response = html.xpath('//*')
+    magnet = html.xpath(".//ol/li/text()")
+    #avinfo = html.xpath('.//table[@cellspacing="0"][@cellpadding="0"]')
+    avinfo = html.xpath('.//td[@class="t_f"][@id="postmessage_4204385"]/text()')
+
+    # categories = {}
+    # categories['avid'] = avid[0]
+    # categories['title'] = avid[1]
+    line1 = html.xpath('.//td[@class="t_f"][@id="postmessage_4204385"]/text()')[0]
+    line2 = html.xpath('.//td[@class="t_f"][@id="postmessage_4204385"]/text()')[1]
+    line3 = html.xpath('.//td[@class="t_f"][@id="postmessage_4204385"]/text()')[2]
+    line4 = html.xpath('.//td[@class="t_f"][@id="postmessage_4204385"]/text()')[3]
+    line5 = html.xpath('.//td[@class="t_f"][@id="postmessage_4204385"]/text()')[4]
+    line6 = html.xpath('.//td[@class="t_f"][@id="postmessage_4204385"]/text()')[5]
+    line7 = html.xpath('.//td[@class="t_f"][@id="postmessage_4204385"]/text()')[6]
+    line8 = html.xpath('.//td[@class="t_f"][@id="postmessage_4204385"]/text()')[7]
+    line9 = html.xpath('.//td[@class="t_f"][@id="postmessage_4204385"]/text()')[8]
+    line10 = html.xpath('.//td[@class="t_f"][@id="postmessage_4204385"]/text()')[9]
+
+
+    i =0
+    for li in avinfo:
+        if i == 0:
+            avid  = li.decode('Shift_JIS')
+        print(i)
+        print(li)
+        i+=1
+
+
+    # title = html.xpath(".//title/text()")
+    # keywords = html.xpath('//meta[@name="keywords"]/@content')
+    #
+    # avid = html.xpath('//div[@class="col-md-3 info"]/p[1]/span[2]/text()')
+    # issuedate = html.xpath('//div[@class="col-md-3 info"]/p[2]/text()')
+    # length = html.xpath('//div[@class="col-md-3 info"]/p[3]/text()')
+
+
 #处理每个番号的子页，
 def parser_content(avid,html,link):
 
@@ -96,7 +139,8 @@ def get_dict(homeurl,url,topitem):
             detail_page_html = downloader.get_html(link)
 
             print(len(detail_page_html))
-            dict_jav = parser_content(item[1],detail_page_html,link)
+            #dict_jav = parser_content(item[1],detail_page_html,link)
+            dict_jav = parser_content_xpath(item[1],detail_page_html,link)
         except:
             #with open('fail_url.txt', 'a') as fd:
             #    fd.write('%s\n' % item)
@@ -196,20 +240,26 @@ def check_url_not_in_table(avid):
 
     return True
 
+def textxpath():
+
+    dict_jav = parser_content_xpath(None,'', None)
 # Press the green button in the gutter to run the script.
 
 if __name__ == '__main__':
     #create_db()
+
+    #textxpath()
+
     create_csv()
 
-    #url = r'https://www.sehuatang.net/forum-37-1.html'
-    homeurll = r'https://www.sehuatang.net/'
 
+    homeurll = r'https://www.sehuatang.net/'
+    #
     url = r'https://www.sehuatang.net/forum-37-1.html'
     join_db(homeurll,url,2)
-
-    url = r'https://www.sehuatang.net/forum-37-2.html'
-    join_db(homeurll,url,0)
+    #
+    # url = r'https://www.sehuatang.net/forum-37-2.html'
+    # join_db(homeurll,url,0)
 
 
     #crawlpage(url)

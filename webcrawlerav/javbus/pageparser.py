@@ -33,7 +33,7 @@ def _parser_magnet(html):
     soup = BeautifulSoup(html, "html.parser")
     for td in soup.select('td[width="70%"]'):
         if td.text.find(u'高清') != -1 :
-            magnet += td.a['href'] + '\n'
+            magnet += td.a['href'] + '||'
     return magnet
 
 def _parser_torrentname(html):

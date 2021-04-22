@@ -4,7 +4,7 @@ import sqlite3
 import csv
 import codecs
 
-sqlpath='./database/'
+sqlpath='../database/'
 dbname = 'javbus.sqlite3.db'
 
 #用来处理用Python的sqlite3操作数据库要插入的字符串中含有中文字符的时候报错处理，配合map
@@ -12,7 +12,7 @@ def _decode_utf8(aStr):
     return aStr.encode('utf-8','ignore').decode('utf-8')
 
 def create_csv():
-    with codecs.open('./database/javbus.csv', 'w','utf-8') as f:
+    with codecs.open('../database/javbus.csv', 'w','utf-8') as f:
         fieldnames = {'avid', 'URL', 'title','發行日期','長度','導演','製作商','發行商','系列','演員','類別','coverimage',
                       'magnet','torrentname','torrenthash',}  # 表头
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -53,7 +53,7 @@ def create_db():
 
 def write_data_csv(dict_jav, uncensored):
 
-    with codecs.open('./database/javbus.csv', 'a', 'utf-8') as f:
+    with codecs.open('../database/javbus.csv', 'a', 'utf-8') as f:
         fieldnames = {'avid', 'URL', 'title', '發行日期', '長度', '導演', '製作商', '發行商', '系列', '演員', '類別', 'coverimage',
                       'magnet', 'torrentname', 'torrenthash', }  # 表头
         writer = csv.DictWriter(f, fieldnames=fieldnames)
