@@ -23,7 +23,8 @@ def get_html(url, Referer_url=None):
     if Referer_url:
         headers['Referer'] = Referer_url
     try:
-        req = requests.get(url, headers=headers,proxies=proxies,verify=False)
+        #req = requests.get(url, headers=headers,proxies=proxies,verify=False)
+        req = requests.get(url, headers=headers,verify=False)
         print("get data from %s" % url)
         #save_html(req.content, url)
         req.close()
@@ -38,7 +39,9 @@ def get_html_txt(url, Referer_url=None):
     '''get_html(url),download and return html'''
     if Referer_url:
         headers['Referer'] = Referer_url
-    req = requests.get(url, headers=headers,proxies=proxies,verify=False)
+    #req = requests.get(url, headers=headers,proxies=proxies,verify=False)
+    req = requests.get(url, headers=headers,verify=False)
+
     print ("get data from %s" % url)
     req.close()
     return req.text

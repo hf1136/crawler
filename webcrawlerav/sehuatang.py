@@ -7,15 +7,15 @@ import time
 import downloader
 import csv
 import codecs
+import sys
 
 sqlpath=r'./database/'
 dbname = r'sht.sqlite3.db'
-##########################################
+
 
 def create_csv():
     with codecs.open('./database/sht.csv', 'w','utf-8') as f:
-        fieldnames = {'avid', 'URL', 'title','发行日期','长度','容量','导演','制作商','发行商','系列','演员','类别','coverimage',
-                      'magnet','torrentname','torrenthash',}  # 表头
+        fieldnames = {'avid', 'URL', 'magnetuploadtime','title','coverimage','magnet','detail',}  # 表头
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         f.close()
@@ -62,81 +62,31 @@ def parser_content_xpath(avid, htmll, link):
     result = etree.HTML(strhtml)
 
     categories = {}
-    categories['avid'] = ''
 
-    categories['magnet'] = ''
     categories['URL'] = link
-    categories['发行日期'] = ''
-    categories['长度'] = ''
-    categories['容量'] = ''
-    categories['导演'] = ''
-    categories['制作商'] = ''
-    categories['发行商'] = ''
-    categories['系列'] = ''
-    categories['类别'] = ''
-    categories['演员'] = ''
     categories['coverimage'] = ''
-    categories['torrentname'] = ''
+    categories['detail'] = ''
+    categories['magnetuploadtime'] = ''
+
 
     magnet = str(result.xpath(".//ol/li/text()")[0])
+
+    categories['magnetuploadtime'] = result.xpath(".//p[@class='xg1 y']/span/@title")[0]
+
     categories['magnet'] = magnet
     linerow = result.xpath('.//td[@class="t_f"]/text()')
-    #print(linerow)
 
-    #avinfo = html.xpath('.//table[@cellspacing="0"][@cellpadding="0"]')
-    strrow = str(result.xpath('.//td[@class="t_f"]/text()')[0]).strip()
-    avtitle = strrow.split(":")[1]
-    categories['title'] = avtitle
+    i =0
+    for lil in linerow:
+        rowt = str(lil)
+        categories['detail'] += rowt.replace('       ','')
+        if i == 12:
+            break
+        i += 1
 
+    categories['title'] = avid[1]
 
-    line2 = result.xpath('.//td[@class="t_f"]/text()')[1]
-    strrow = str(line2).strip().split(':')[1]
-    categories['容量'] = strrow
-
-    line3 = result.xpath('.//td[@class="t_f"]/text()')[2]
-    strrow = str(line3).strip().split('：')[1].strip()
-    categories['发行日期'] = strrow
-
-
-    line4 = result.xpath('.//td[@class="t_f"]/text()')[3]
-    strrow = str(line4).strip().split('：')[1].strip()
-
-
-    line5 = result.xpath('.//td[@class="t_f"]/text()')[4]
-    strrow = str(line5).strip().split('：')[1].strip()
-    categories['长度'] = strrow
-
-
-    line6 = result.xpath('.//td[@class="t_f"]/text()')[5]
-    strrow = str(line6).strip().split('：')[1].strip()
-    categories['演员'] = strrow
-
-    line7 = result.xpath('.//td[@class="t_f"]/text()')[6]
-    strrow = str(line7).strip().split('：')[1].strip()
-    categories['导演'] = strrow
-
-
-    line8 = result.xpath('.//td[@class="t_f"]/text()')[7]
-    strrow = str(line8).strip().split('：')[1].strip()
-    categories['制作商'] = strrow
-
-
-    line9 = result.xpath('.//td[@class="t_f"]/text()')[8]
-    strrow = str(line9).strip().split('：')[1].strip()
-    categories['发行商'] = strrow
-
-    line10 = result.xpath('.//td[@class="t_f"]/text()')[9]
-    strrow = str(line10).strip().split('：')[1].strip()
-    categories['系列'] = strrow
-
-
-    line11 = result.xpath('.//td[@class="t_f"]/text()')[10]
-    strrow = str(line11).strip().split('：')[1].strip()
-    categories['类别'] = strrow
-
-    line12 = result.xpath('.//td[@class="t_f"]/text()')[11]
-    strrow = str(line12).strip().split('：')[1].strip()
-    categories['avid'] = strrow
+    categories['avid'] = avid[0]
 
     return categories
 
@@ -161,12 +111,14 @@ def parser_content(avid,html,link):
     categories['类别'] = ''
     categories['演员'] = ''
     categories['coverimage'] = ''
-    categories['torrentname'] = ''
-    categories['torrenthash'] = ''
 
     #categories = getDMMinfo(avid,categories)
 
     return categories
+def get_detilepage(link):
+    detail_page_html = downloader.get_html_txt(link)
+    dict_jav = parser_content_xpath('', detail_page_html, link)
+    print(dict_jav)
 
 def get_dict(homeurl,url,topitem):
     """get the dict of the detail page and yield the dict"""
@@ -185,6 +137,7 @@ def get_dict(homeurl,url,topitem):
 
             #dict_jav = parser_content(item[1],detail_page_html,link)
             dict_jav = parser_content_xpath(item[1],detail_page_html,link)
+            print("xpath 解析数据成功！")
         except:
              #with open('fail_url.txt', 'a') as fd:
              #    fd.write('%s\n' % item)
@@ -202,8 +155,6 @@ def parser_homeurl(html):
             yield item['href'],avid
         else :
             continue
-
-
 
 def write_data(dict_jav, uncensored):
     '''write_data(dict_jav, uncensored)'''
@@ -248,11 +199,8 @@ def join_db(homeurl,url,topitem):
 
 def write_data_csv(dict_jav, uncensored):
     with codecs.open('./database/sht.csv', 'a','utf-8') as f:
-        fieldnames = {'avid', 'URL', 'title','发行日期','长度','容量','导演','制作商','发行商','系列','演员','类别','coverimage',
-                      'magnet','torrentname','torrenthash',}  # 表头
+        fieldnames = {'avid', 'URL','magnetuploadtime','title','coverimage','magnet','detail',}  # 表头
         writer = csv.DictWriter(f, fieldnames=fieldnames)
-        #writer.writeheader()
-        #print(dict_jav)
         writer.writerow(dict_jav)
         f.close()
 
@@ -293,16 +241,16 @@ if __name__ == '__main__':
     #create_db()
 
     #textxpath()
-
     create_csv()
 
-
     homeurll = r'https://www.sehuatang.net/'
-    url = r'https://www.sehuatang.net/forum-37-1.html'
-    join_db(homeurll,url,2)
 
-    url = r'https://www.sehuatang.net/forum-37-2.html'
-    join_db(homeurll,url,0)
+    if len(sys.argv) < 2:
+        url = r'https://www.sehuatang.net/forum-37-1.html'
+        join_db(homeurll,url,2)
 
-
-    #crawlpage(url)
+        url = r'https://www.sehuatang.net/forum-37-2.html'
+        join_db(homeurll,url,0)
+    else :
+        url = sys.argv[1]
+        get_detilepage(url)

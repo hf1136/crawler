@@ -6,7 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/webcrawlerav/database" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/webcrawlerav/javbus" isTestSource="false" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.7 (crawler)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
