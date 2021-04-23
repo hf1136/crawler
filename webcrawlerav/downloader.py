@@ -5,8 +5,8 @@ import urllib3
 
 urllib3.disable_warnings()
 
-proxies = {'http': 'socks5://127.0.0.1:7890',
-           'https': 'socks5://127.0.0.1:7890'}
+proxies = {'http': 'socks5h://127.0.0.1:7890',
+           'https': 'socks5h://127.0.0.1:7890'}
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36',
@@ -25,7 +25,7 @@ def get_html(url, Referer_url=None):
     try:
         req = requests.get(url, headers=headers,proxies=proxies,verify=False)
         print("get data from %s" % url)
-        save_html(req.content, url)
+        #save_html(req.content, url)
         req.close()
         return req.content
     except:
@@ -50,6 +50,15 @@ def get_html_noprox(url, Referer_url=None):
     req = requests.get(url, headers=headers,verify=False)
     print ("get data from %s" % url)
     return req.content
+
+def get_html_noprox_text(url, Referer_url=None):
+    '''get_html(url),download and return html'''
+    if Referer_url:
+        headers['Referer'] = Referer_url
+    req = requests.get(url, headers=headers,verify=False)
+    print ("get data from %s" % url)
+    return req.text
+
 
 def get_html_cookie(url, cookies):
     '''get_html(url),download and return html'''
