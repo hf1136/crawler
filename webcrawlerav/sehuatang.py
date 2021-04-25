@@ -13,6 +13,8 @@ import random
 sqlpath=r'./database/'
 dbname = r'sht.sqlite3.db'
 
+isProxy = False
+
 def create_csv():
     with codecs.open('./database/sht.csv', 'w','utf-8') as f:
         fieldnames = {'avid', 'URL', 'magnetuploadtime','title','coverimage','magnet','detail',}  # 表头
@@ -54,10 +56,18 @@ def parser_content_xpath(avid, htmll, link):
     categories['magnetuploadtime'] = ''
 
     magnet = str(result.xpath(".//ol/li/text()")[0])
-
-    categories['magnetuploadtime'] = result.xpath(".//p[@class='xg1 y']/span/@title")[0]
-
     categories['magnet'] = magnet
+
+    linerow1 = result.xpath(".//p[@class='xg1 y']/span/@title")
+    linerow2 = result.xpath(".//p[@class='xg1 y']/text()")
+
+    if (linerow1):
+        categories['magnetuploadtime'] = linerow1[0]
+    if (linerow2):
+        categories['magnetuploadtime'] = linerow2[0]
+
+
+
     linerow = result.xpath('.//td[@class="t_f"]/text()')
     i =0
     for lil in linerow:
@@ -105,36 +115,41 @@ def parser_content(avid,html,link):
 
     return categories
 def get_detilepage(link):
-    detail_page_html = downloader.get_html_txt(link)
+    detail_page_html = downloader.get_html_txt(link,isProxy)
     dict_jav = parser_content_xpath('', detail_page_html, link)
     print(dict_jav)
 
 def get_dict(homeurl,url,topitem):
     """get the dict of the detail page and yield the dict"""
-    url_html = downloader.get_html(url)
+    url_html = downloader.get_html(url,isProxy)
     i = 0
     for item in parser_homeurl(url_html):
-        st = random.randint(1, 4)
-        time.sleep(st)
-        print(item)
+
+
         if i < topitem:
             i += 1
             continue
+
+        print(item)
+        if check_url_not_in_table(item[1][0]) == False:
+            continue
+
+
+        st = random.randint(1, 4)
+        time.sleep(st)
         try:
             link = f'{homeurl}{item[0]}'
-            #detail_page_html = downloader.get_html(link)
-            detail_page_html = downloader.get_html_txt(link)
+            detail_page_html = downloader.get_html_txt(link,isProxy)
 
-            #dict_jav = parser_content(item[1],detail_page_html,link)
             dict_jav = parser_content_xpath(item[1],detail_page_html,link)
             print("xpath 解析数据成功！")
         except:
-             #with open('fail_url.txt', 'a') as fd:
-             #    fd.write('%s\n' % item)
-             print("Fail to crawl %s\ncrawl next detail page......" % link)
-             continue
+            row = f'{item[1][0]},{link}\n'
+            with open('fail_url.csv', 'a') as fd:
+                fd.write(row)
+            print("Fail to crawl %s\ncrawl next detail page......" % link)
+            continue
         i += 1
-        
         yield dict_jav, item
 
 def parser_homeurl(html):
@@ -230,10 +245,10 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         url = r'https://www.sehuatang.net/forum-37-1.html'
         join_db(homeurll,url,2)
-        for i in range(100):
+        for i in range(400,500):
             st = random.randint(5, 15)
             time.sleep(st)
-            url = f'https://www.sehuatang.net/forum-37-{i+1}.html'
+            url = f'https://www.sehuatang.net/forum-37-{i}.html'
             join_db(homeurll,url,0)
     else :
         url = sys.argv[1]

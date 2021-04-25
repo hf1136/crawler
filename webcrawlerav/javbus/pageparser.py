@@ -73,7 +73,7 @@ def parser_homeurl(html):
             yield url['href']
 
 
-def parser_content(htmltext):
+def parser_content(htmltext,isproxy=True):
     """parser_content(html),parser page's content of every url and yield the dict of content"""
 
     soup = BeautifulSoup(htmltext, "html.parser")
@@ -119,6 +119,10 @@ def parser_content(htmltext):
     categories['系列'] = series
     # series = soup.find('span', text="系列:").parent.contents[2].text if soup.find('span', text="系列:") else ''
 
+    pic_doc = soup.find('a', class_="bigImage")
+    picimg = pic_doc['href'] if pic_doc else ''
+    categories['coverimage'] = picimg
+
     genre_doc = soup.find_all('span', class_="genre")
     genre_text = ''
     for i in genre_doc:
@@ -143,14 +147,9 @@ def parser_content(htmltext):
 
     # 将磁力链接加入字典
     cili = _get_cili_url(pagetext)
-    magnet_html = downloader.get_html(cili, Referer_url=url)
+    magnet_html = downloader.get_html(cili, Referer_url=url,isproxy=isproxy)
     magnet = _parser_magnet(magnet_html)
     categories['magnet'] = magnet
 
-
-    #torrentname = _parser_torrentname(magnet_html)
-    categories['coverimage'] = ''
-    categories['torrentname'] = 'NULL'
-    categories['torrenthash'] = ''
 
     return categories
