@@ -245,7 +245,7 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         url = r'https://www.sehuatang.net/forum-37-1.html'
         join_db(homeurll,url,2)
-        for i in range(400,500):
+        for i in range(2,11):
             st = random.randint(5, 15)
             time.sleep(st)
             url = f'https://www.sehuatang.net/forum-37-{i}.html'

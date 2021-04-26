@@ -73,7 +73,7 @@ def main(entrance):
         num +=1
         if next_page_url == None:
             break
-        if num > 150:
+        if num > 10:
             break
 
 
