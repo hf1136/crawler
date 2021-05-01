@@ -10,6 +10,7 @@ import codecs
 import json
 import csv
 import pymongo
+import sqlite3
 
 from scrapy.utils.project import get_project_settings
 from javbuuuus.items import MovieItem, SehuatangItem
@@ -147,3 +148,60 @@ class MongoPipeline(object):
         elif isinstance(item, StarItem):
             self.coll_star.insert(postItem)  # 向数据库插入一条记录
         return item  # 会在控制台输出原item数据，可以选择不写
+
+
+class SqlitePipeline(object):
+
+    sqlpath = r'./'
+    dbname = r'sht.sqlite3.db'
+
+    def __init__(self):
+        conn = sqlite3.connect(self.sqlpath + self.dbname)
+        cursor = conn.cursor()
+
+        query = "CREATE TABLE IF NOT EXISTS SHT_DATA(avid   TEXT    PRIMARY KEY,URL  TEXT,title     TEXT," \
+                "coverimage      TEXT,magnet    TEXT," \
+                "magnetuploadtime    TEXT,detail    TEXT);"
+
+        cursor.execute(query)
+        print("Table created successfully")
+        cursor.close()
+        conn.commit()
+        conn.close()
+        pass
+
+    def process_item(self, item, spider):
+
+        if isinstance(item, SehuatangItem):
+            self.process_shtitem(item, spider)
+        return item
+
+    def process_shtitem(self,item,spider):
+        postitem = dict(item)  # 把item转化成字典形式
+        self.write_data(postitem)
+        print(postitem)
+
+    def write_data(self, dict_jav):
+
+        conn = sqlite3.connect(self.sqlpath + self.dbname)
+        cursor = conn.cursor()
+        # dict_jav = getDMMinfo(dict_jav['avid'],dict_jav)
+        if dict_jav == None:
+            return
+
+        # {'avid', 'URL', 'magnetuploadtime', 'title', 'coverimage', 'magnet', 'detail', }
+        insert_data = (dict_jav['avid'], dict_jav['avurl'], dict_jav['magnetuploadtime'],
+                       dict_jav['title'], dict_jav['coverimage'],
+                       dict_jav['magnets'], dict_jav['detail'],)
+        # 插入数据
+        cursor.execute('''
+        INSERT INTO SHT_DATA (avid, URL, magnetuploadtime, title, coverImage, magnet,detail)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', insert_data)
+
+        cursor.close()
+        conn.commit()
+        conn.close()
+
+    def spider_closed(self, spider):
+        pass

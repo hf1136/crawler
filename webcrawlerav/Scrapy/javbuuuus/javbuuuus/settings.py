@@ -67,6 +67,7 @@ ITEM_PIPELINES = {
     'javbuuuus.pipelines.JsonPipeline': 300,
     'javbuuuus.pipelines.CsvPipeline': 301,
     # 'javbuuuus.pipelines.MongoPipeline': 302,
+    'javbuuuus.pipelines.SqlitePipeline': 303,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

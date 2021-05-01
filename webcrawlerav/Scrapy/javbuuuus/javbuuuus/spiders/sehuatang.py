@@ -31,10 +31,8 @@ class SehuatangSpider(Spider):
         if self.pagenumber < self.maxpage:
             yield scrapy.Request(self.domain + nextpagelink,callback=self.parse)
 
-    def parse_detail(self,r):
-        print(r)
+    def parse_detail(self, r):
         categories = {}
-
         categories['URL'] = r.url
         categories['coverimage'] = ''
         categories['detail'] = ''
@@ -43,11 +41,13 @@ class SehuatangSpider(Spider):
         magnet = r.xpath(".//ol/li/text()")[0].extract()
         categories['magnet'] = magnet
 
-        linerow1 = r.xpath(".//p[@class='xg1 y']/span/@title")[0].extract()
-
+        linerow1 = r.xpath(".//p[@class='xg1 y']/span/@title").extract()
+        linerow2 = r.xpath(".//p[@class='xg1 y']/text()").extract()
 
         if (linerow1):
-            categories['magnetuploadtime'] = linerow1
+            categories['magnetuploadtime'] = linerow1[0]
+        elif (linerow2):
+            categories['magnetuploadtime'] = linerow2[0]
 
         linerow = r.xpath('.//td[@class="t_f"]/text()').extract()
         i = 0
@@ -74,10 +74,10 @@ class SehuatangSpider(Spider):
         item = SehuatangItem()
         item['avid'] = categories['avid']
         item['title'] = categories['title']
+        item['avurl'] = categories['URL']
         item['coverimage'] = categories['coverimage']
         item['detail'] = categories['detail']
         item['magnetuploadtime'] = categories['magnetuploadtime']
         item['magnets'] = categories['magnet']
 
-        print(item)
         yield item
