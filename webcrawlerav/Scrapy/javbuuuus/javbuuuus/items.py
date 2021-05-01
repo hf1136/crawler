@@ -36,4 +36,13 @@ class MovieItem(scrapy.Item):
     series = scrapy.Field()
     # 磁链
     magnets = scrapy.Field()
-    pass
+
+class SehuatangItem(scrapy.Item):
+
+    avid = scrapy.Field()
+    title = scrapy.Field()
+    magnets = scrapy.Field()
+    avurl = scrapy.Field()
+    magnetuploadtime = scrapy.Field()
+    detail = scrapy.Field()
+    coverimage = scrapy.Field()

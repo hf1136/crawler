@@ -83,8 +83,8 @@ class JavbuuuusDownloaderMiddleware:
         # - or return a Request object
         # - or raise IgnoreRequest: process_exception() methods of
         #   installed downloader middleware will be called
+        proxies = 'https://127.0.0.1:7964'
 
-        proxies = "socks5://127.0.0.1:7890"
         request.meta['proxy'] = proxies
         #return None
 

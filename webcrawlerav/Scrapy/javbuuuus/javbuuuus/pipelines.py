@@ -12,7 +12,8 @@ import csv
 import pymongo
 
 from scrapy.utils.project import get_project_settings
-from javbuuuus.items import MovieItem
+from javbuuuus.items import MovieItem, SehuatangItem
+
 
 class JsonPipeline(object):
     def __init__(self):
@@ -24,7 +25,6 @@ class JsonPipeline(object):
         # 根据Item的类型保存到不同的文件
         if isinstance(item, MovieItem):
             self.main_file.write(line)
-
         return item
 
     def spider_closed(self, spider):
@@ -33,23 +33,25 @@ class JsonPipeline(object):
 
 class CsvPipeline(object):
     def __init__(self):
-        fieldnames = {'code', 'title','release_date','duration','director','label','magnets',
-                      'stars','censored','previews','studio','cover','tags','series'}
+        fieldnames = {'code', 'title', 'release_date', 'duration', 'director', 'label', 'magnets',
+                      'stars', 'censored', 'previews', 'studio', 'cover', 'tags', 'series'}
         self.main_file = codecs.open('JavBus.csv', 'w', encoding='utf-8')
         writer = csv.DictWriter(self.main_file, fieldnames=fieldnames)
         writer.writeheader()
 
     def process_item(self, item, spider):
         # 根据Item的类型保存到不同的文件
-        fieldnames = {'code', 'title','release_date','duration','director','label','magnets',
-                      'stars','censored','previews','studio','cover','tags','series'}
-        writer = csv.DictWriter(self.main_file,fieldnames)
-        writer.writerow(dict(item))
+        if isinstance(item, MovieItem):
+            fieldnames = {'code', 'title', 'release_date', 'duration', 'director', 'label', 'magnets',
+                          'stars', 'censored', 'previews', 'studio', 'cover', 'tags', 'series'}
+            writer = csv.DictWriter(self.main_file, fieldnames)
+            writer.writerow(dict(item))
 
         return item
 
     def spider_closed(self, spider):
         self.main_file.close()
+
 
 class MongoPipeline(object):
 
