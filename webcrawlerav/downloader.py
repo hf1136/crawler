@@ -5,8 +5,8 @@ import urllib3
 
 urllib3.disable_warnings()
 
-proxies = {'http': 'socks5://127.0.0.1:7890',
-           'https': 'socks5://127.0.0.1:7890'}
+proxies = {'http': 'socks5://127.0.0.1:7963',
+           'https': 'socks5://127.0.0.1:7963'}
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36',

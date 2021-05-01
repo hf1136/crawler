@@ -4,7 +4,7 @@ import time
 
 import pageparser
 import controler
-import downloader
+from webcrawlerav import downloader
 
 isProxy = False
 

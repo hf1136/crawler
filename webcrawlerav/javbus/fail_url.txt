@@ -53,3 +53,5 @@ https://www.javbus.com/ARM-974
 https://www.javbus.com/FLAV-266
 https://www.javbus.com/ARAN-019
 https://www.javbus.com/KTKC-113
+https://www.javbus.com/JRZE-041
+https://www.javbus.com/SDDE-645
