@@ -17,8 +17,9 @@ from javbuuuus.items import MovieItem, SehuatangItem
 
 
 class JsonPipeline(object):
-    def __init__(self):
-        self.main_file = codecs.open('JavBus.json', 'w', encoding='utf-8')
+    def open_spider(self,spider):
+        if spider.name == 'javbusall':
+            self.main_file = codecs.open('JavBus.json', 'w', encoding='utf-8')
 
     def process_item(self, item, spider):
         # 根据Item的类型保存到不同的文件
@@ -28,17 +29,19 @@ class JsonPipeline(object):
             self.main_file.write(line)
         return item
 
-    def spider_closed(self, spider):
-        self.main_file.close()
+    def close_spider(self, spider):
+        if spider.name == 'javbusall':
+            self.main_file.close()
 
 
 class CsvPipeline(object):
-    def __init__(self):
-        fieldnames = {'code', 'title', 'release_date', 'duration', 'director', 'label', 'magnets',
-                      'stars', 'censored', 'previews', 'studio', 'cover', 'tags', 'series'}
-        self.main_file = codecs.open('JavBus.csv', 'w', encoding='utf-8')
-        writer = csv.DictWriter(self.main_file, fieldnames=fieldnames)
-        writer.writeheader()
+    def open_spider(self,spider):
+        if spider.name == 'javbusall':
+            fieldnames = {'code', 'title', 'release_date', 'duration', 'director', 'label', 'magnets',
+                          'stars', 'censored', 'previews', 'studio', 'cover', 'tags', 'series'}
+            self.main_file = codecs.open('JavBus.csv', 'w', encoding='utf-8')
+            writer = csv.DictWriter(self.main_file, fieldnames=fieldnames)
+            writer.writeheader()
 
     def process_item(self, item, spider):
         # 根据Item的类型保存到不同的文件
@@ -50,35 +53,37 @@ class CsvPipeline(object):
 
         return item
 
-    def spider_closed(self, spider):
-        self.main_file.close()
+    def colse_spider(self, spider):
+        if spider.name == 'javbusall':
+            self.main_file.close()
 
 
 class MongoPipeline(object):
 
-    def __init__(self):
-        settings = get_project_settings()
-        # 链接数据库
-        self.client = pymongo.MongoClient(host=settings['MONGO_HOST'], port=settings['MONGO_PORT'])
-        # 数据库登录需要帐号密码的话
-        # self.client.admin.authenticate(settings['MINGO_USER'], settings['MONGO_PSW'])
-        self.db = self.client[settings['MONGO_DB']]  # 获得数据库的句柄
-        self.coll_movie = self.db[settings['MONGO_COLL_MOVIE']]  # 获得movie_collection的句柄
-        self.coll_star = self.db[settings['MONGO_COLL_STAR']]  # 获得star_collection的句柄
-        self.coll_magnet = self.db[settings['MONGO_COLL_MAGNET']]
-        self.coll_preview = self.db[settings['MONGO_COLL_PREVIEW']]
-        self.coll_movie_star = self.db[settings['MONGO_COLL_MOVIE_STAR']]
+    def open_spider(self,spider):
+        if spider.name == 'javbusall':
+            settings = get_project_settings()
+            # 链接数据库
+            self.client = pymongo.MongoClient(host=settings['MONGO_HOST'], port=settings['MONGO_PORT'])
+            # 数据库登录需要帐号密码的话
+            # self.client.admin.authenticate(settings['MINGO_USER'], settings['MONGO_PSW'])
+            self.db = self.client[settings['MONGO_DB']]  # 获得数据库的句柄
+            self.coll_movie = self.db[settings['MONGO_COLL_MOVIE']]  # 获得movie_collection的句柄
+            self.coll_star = self.db[settings['MONGO_COLL_STAR']]  # 获得star_collection的句柄
+            self.coll_magnet = self.db[settings['MONGO_COLL_MAGNET']]
+            self.coll_preview = self.db[settings['MONGO_COLL_PREVIEW']]
+            self.coll_movie_star = self.db[settings['MONGO_COLL_MOVIE_STAR']]
 
-        self.coll_studio = self.db[settings['MONGO_COLL_STUDIO']]
-        self.coll_label = self.db[settings['MONGO_COLL_LABEL']]
-        self.coll_director = self.db[settings['MONGO_COLL_DIRECTOR']]
-        self.coll_series = self.db[settings['MONGO_COLL_SERIES']]
-        self.coll_movie_studio = self.db[settings['MONGO_COLL_MOVIE_STUDIO']]
-        self.coll_movie_label = self.db[settings['MONGO_COLL_MOVIE_LABEL']]
-        self.coll_movie_director = self.db[settings['MONGO_COLL_MOVIE_DIRECTOR']]
-        self.coll_movie_series = self.db[settings['MONGO_COLL_MOVIE_SERIES']]
-        self.coll_tag = self.db[settings['MONGO_COLL_TAG']]
-        self.coll_movie_tag = self.db[settings['MONGO_COLL_MOVIE_TAG']]
+            self.coll_studio = self.db[settings['MONGO_COLL_STUDIO']]
+            self.coll_label = self.db[settings['MONGO_COLL_LABEL']]
+            self.coll_director = self.db[settings['MONGO_COLL_DIRECTOR']]
+            self.coll_series = self.db[settings['MONGO_COLL_SERIES']]
+            self.coll_movie_studio = self.db[settings['MONGO_COLL_MOVIE_STUDIO']]
+            self.coll_movie_label = self.db[settings['MONGO_COLL_MOVIE_LABEL']]
+            self.coll_movie_director = self.db[settings['MONGO_COLL_MOVIE_DIRECTOR']]
+            self.coll_movie_series = self.db[settings['MONGO_COLL_MOVIE_SERIES']]
+            self.coll_tag = self.db[settings['MONGO_COLL_TAG']]
+            self.coll_movie_tag = self.db[settings['MONGO_COLL_MOVIE_TAG']]
 
     def process_item(self, item, spider):
         postItem = dict(item)  # 把item转化成字典形式
@@ -151,28 +156,29 @@ class MongoPipeline(object):
 
 
 class SqlitePipeline(object):
+    settings = get_project_settings()
+    sqlpath = settings["SQLITE_PATH"]
+    dbname = settings["SQLITE_DBNAME"]
 
-    sqlpath = r'./'
-    dbname = r'sht.sqlite3.db'
+    def open_spider(self, spider):
+        if spider.name == 'sehuatang':
+            conn = sqlite3.connect(self.sqlpath + self.dbname)
+            cursor = conn.cursor()
 
-    def __init__(self):
-        conn = sqlite3.connect(self.sqlpath + self.dbname)
-        cursor = conn.cursor()
+            query = "CREATE TABLE IF NOT EXISTS SHT_DATA(avid   TEXT    PRIMARY KEY,URL  TEXT,title     TEXT," \
+                    "coverimage      TEXT,magnet    TEXT," \
+                    "magnetuploadtime    TEXT,detail    TEXT);"
 
-        query = "CREATE TABLE IF NOT EXISTS SHT_DATA(avid   TEXT    PRIMARY KEY,URL  TEXT,title     TEXT," \
-                "coverimage      TEXT,magnet    TEXT," \
-                "magnetuploadtime    TEXT,detail    TEXT);"
+            cursor.execute(query)
+            print("Table created successfully")
+            cursor.close()
+            conn.commit()
+            conn.close()
 
-        cursor.execute(query)
-        print("Table created successfully")
-        cursor.close()
-        conn.commit()
-        conn.close()
-        pass
 
     def process_item(self, item, spider):
 
-        if isinstance(item, SehuatangItem):
+        if spider.name == 'sehuatang':
             self.process_shtitem(item, spider)
         return item
 
@@ -185,11 +191,6 @@ class SqlitePipeline(object):
 
         conn = sqlite3.connect(self.sqlpath + self.dbname)
         cursor = conn.cursor()
-        # dict_jav = getDMMinfo(dict_jav['avid'],dict_jav)
-        if dict_jav == None:
-            return
-
-        # {'avid', 'URL', 'magnetuploadtime', 'title', 'coverimage', 'magnet', 'detail', }
         insert_data = (dict_jav['avid'], dict_jav['avurl'], dict_jav['magnetuploadtime'],
                        dict_jav['title'], dict_jav['coverimage'],
                        dict_jav['magnets'], dict_jav['detail'],)
@@ -203,5 +204,5 @@ class SqlitePipeline(object):
         conn.commit()
         conn.close()
 
-    def spider_closed(self, spider):
+    def close_spider(self, spider):
         pass

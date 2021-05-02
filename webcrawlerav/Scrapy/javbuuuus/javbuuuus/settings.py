@@ -116,3 +116,9 @@ MONGO_COLL_MOVIE_DIRECTOR = "movie_director"
 MONGO_COLL_MOVIE_SERIES = "movie_series"
 MONGO_COLL_TAG = "tag"
 MONGO_COLL_MOVIE_TAG = "movie_tag"
+
+
+#sqlite 路径
+SQLITE_PATH = "./"
+#SQLITE 数据库文件
+SQLITE_DBNAME = "sht.sqlite3.db"
